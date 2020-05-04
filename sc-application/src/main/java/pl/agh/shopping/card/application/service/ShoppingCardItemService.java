@@ -27,7 +27,6 @@ public class ShoppingCardItemService {
         if (!shoppingCardRepository.existsById(shoppingCardItemRequestDTO.getShoppingCard().getId())) {
             throw new BadRequestException("shopping card not found");
         }
-        // TODO add bookId validation
         ShoppingCardItem shoppingCardItem = shoppingCardItemRequestDTO.toEntity();
         return shoppingCardItemRepository.save(shoppingCardItem);
     }
@@ -43,7 +42,6 @@ public class ShoppingCardItemService {
         if (!shoppingCardRepository.existsById(shoppingCardItemRequestDTO.getShoppingCard().getId())) {
             throw new BadRequestException("shopping card not found");
         }
-        // TODO add bookId validation
 
         ShoppingCardItem shoppingCardItem = shoppingCardItemRequestDTO.toEntity();
         shoppingCardItem.setId(id);

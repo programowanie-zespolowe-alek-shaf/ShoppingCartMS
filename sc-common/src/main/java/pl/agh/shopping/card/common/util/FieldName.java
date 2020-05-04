@@ -2,7 +2,7 @@ package pl.agh.shopping.card.common.util;
 
 public enum FieldName {
 
-    USER_ID("userId"),
+    USERNAME("username"),
     BOOK_ID("bookId"),
     SHOPPING_CARD_ID("shoppingCard"),
     QUANTITY("quantity");

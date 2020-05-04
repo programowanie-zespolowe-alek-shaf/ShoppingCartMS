@@ -8,11 +8,11 @@ import java.time.LocalDate;
 @Data
 public class ShoppingCardRequestDTO {
 
-    private Long userId;
+    private String username;
 
     public ShoppingCard toEntity() {
         return ShoppingCard.builder()
-                .userId(userId)
+                .username(username)
                 .createDate(LocalDate.now())
                 .build();
     }

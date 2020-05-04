@@ -7,12 +7,13 @@ import pl.agh.shopping.card.common.exception.CustomException;
 import pl.agh.shopping.card.common.util.FieldName;
 
 import static pl.agh.shopping.card.common.util.ValidationUtil.validateGreaterThanZero;
+import static pl.agh.shopping.card.common.util.ValidationUtil.validateNotNull;
 
 @Service
 public class ValidationService {
 
     public void validate(ShoppingCardRequestDTO shoppingCardRequestDTO) throws CustomException {
-        validateGreaterThanZero(FieldName.USER_ID, shoppingCardRequestDTO.getUserId());
+        validateNotNull(FieldName.USERNAME, shoppingCardRequestDTO.getUsername());
     }
 
     public void validate(ShoppingCardItemRequestDTO shoppingCardItemRequestDTO) throws CustomException {

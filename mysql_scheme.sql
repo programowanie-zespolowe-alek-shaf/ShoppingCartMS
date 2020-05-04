@@ -1,14 +1,14 @@
-DROP SCHEMA IF EXISTS customer;
-CREATE SCHEMA IF NOT EXISTS customer;
+DROP SCHEMA IF EXISTS shopping;
+CREATE SCHEMA IF NOT EXISTS shopping;
 
-create user 'shopcard'@'%' identified by 'shopcard';
-grant all on customer.* to 'shopcard'@'%';
+create user 'shopping'@'%' identified by 'shopping';
+grant all on shopping.* to 'shopping'@'%';
 
-USE customer;
+USE shopping;
 
 CREATE TABLE shopping_card (
   id              BIGINT AUTO_INCREMENT PRIMARY KEY  NOT NULL,
-  userId          BIGINT NOT NULL,
+  username        VARCHAR(45)  NOT NULL,
   createDate      DATE NOT NULL
 );
 
@@ -18,5 +18,5 @@ CREATE TABLE shopping_card_item (
   bookId          BIGINT NOT NULL,
   quantity        BIGINT NOT NULL,
   createDate      DATE NOT NULL,
-  FOREIGN KEY (shoppingCardId) REFERENCES shoppingCards(id)
+  FOREIGN KEY (shoppingCardId) REFERENCES shopping_card(id)
 );

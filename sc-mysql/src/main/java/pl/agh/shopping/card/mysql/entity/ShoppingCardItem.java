@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "shopping_card_item", schema = "customer")
+@Table(name = "shopping_card_item", schema = "shopping")
 public class ShoppingCardItem implements Comparable<ShoppingCardItem> {
 
     @Id
@@ -26,8 +26,6 @@ public class ShoppingCardItem implements Comparable<ShoppingCardItem> {
 
     @Getter
     @Setter
-    //@ManyToOne
-    //@JoinColumn(name = "bookId")
     @Column(name = "bookId")
     private Long bookId;
 

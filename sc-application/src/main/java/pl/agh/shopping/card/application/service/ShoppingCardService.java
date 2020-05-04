@@ -20,12 +20,6 @@ public class ShoppingCardService {
     }
 
     public ShoppingCard add(ShoppingCardRequestDTO shoppingCardRequestDTO) throws CustomException {
-
-        // TODO add userId validation
-        /*if (!categoryRepository.existsById(shoppingCardRequestDTO.getCategory().getId())) {
-            throw new BadRequestException("category not found");
-        }*/
-
         ShoppingCard shoppingCard = shoppingCardRequestDTO.toEntity();
         return shoppingCardRepository.save(shoppingCard);
     }
