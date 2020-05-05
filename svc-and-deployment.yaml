@@ -19,17 +19,17 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
-#          env:
-#            - name: MYSQL_DB_HOST
-#              value: ...
-#            - name: MYSQL_DB_PORT
-#              value: ...
-#            - name: MYSQL_DATABASE
-#              value: ...
-#            - name: MYSQL_DB_USERNAME
-#              value: ...
-#            - name: MYSQL_DB_PASSWORD
-#              value: ...
+          env:
+            - name: MYSQL_DB_HOST
+              value: "__MYSQL_DB_HOST__"
+            - name: MYSQL_DB_PORT
+              value: "__MYSQL_DB_PORT__"
+            - name: MYSQL_DATABASE
+              value: "__MYSQL_DATABASE__"
+            - name: MYSQL_DB_USERNAME
+              value: "__MYSQL_DB_USERNAME__"
+            - name: MYSQL_DB_PASSWORD
+              value: "__MYSQL_DB_PASSWORD__"
 #            - name: EUREKA_HOST
 #              value: ...
 #            - name: EUREKA_PORT
