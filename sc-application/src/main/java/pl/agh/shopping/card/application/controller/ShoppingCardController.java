@@ -9,6 +9,7 @@ import pl.agh.shopping.card.application.dto.ShoppingCardRequestDTO;
 import pl.agh.shopping.card.application.service.ShoppingCardService;
 import pl.agh.shopping.card.application.service.ValidationService;
 import pl.agh.shopping.card.common.exception.CustomException;
+import pl.agh.shopping.card.common.response.ListResponse;
 import pl.agh.shopping.card.mysql.entity.ShoppingCard;
 
 import java.net.URI;
@@ -67,5 +68,14 @@ public class ShoppingCardController {
         } else {
             return ResponseEntity.noContent().build();
         }
+    }
+
+    @RequestMapping(method = RequestMethod.GET, produces = {APPLICATION_JSON})
+    public ResponseEntity findShoppingCards(@RequestParam int limit,
+                                            @RequestParam int offset,
+                                            @RequestParam(required = false) String username) {
+
+        ListResponse shoppingCards = shoppingCardService.findAll(limit, offset, username);
+        return ResponseEntity.ok(shoppingCards);
     }
 }

@@ -5,11 +5,15 @@ import org.springframework.stereotype.Service;
 import pl.agh.shopping.card.application.dto.ShoppingCardItemRequestDTO;
 import pl.agh.shopping.card.common.exception.BadRequestException;
 import pl.agh.shopping.card.common.exception.CustomException;
+import pl.agh.shopping.card.common.response.ListResponse;
+import pl.agh.shopping.card.common.util.ListUtil;
 import pl.agh.shopping.card.mysql.entity.ShoppingCardItem;
 import pl.agh.shopping.card.mysql.repository.ShoppingCardItemRepository;
 import pl.agh.shopping.card.mysql.repository.ShoppingCardRepository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ShoppingCardItemService {
@@ -56,5 +60,19 @@ public class ShoppingCardItemService {
         }
         shoppingCardItemRepository.delete(shoppingCardItem.get());
         return shoppingCardItem.get();
+    }
+
+
+    public ListResponse findAll(int limit, int offset, String username) {
+        List<ShoppingCardItem> shoppingCardItems = shoppingCardItemRepository.findAll();
+
+        if (username != null) {
+            shoppingCardItems = shoppingCardItems.stream().filter(shoppingCardItem -> shoppingCardItem.getShoppingCard().getUsername().equals(username)).collect(Collectors.toList());
+        }
+
+        int count = shoppingCardItems.size();
+        shoppingCardItems = ListUtil.clampedSublist(shoppingCardItems, limit, offset);
+
+        return new ListResponse(shoppingCardItems, count);
     }
 }

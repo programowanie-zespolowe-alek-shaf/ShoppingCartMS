@@ -21,12 +21,12 @@ public class ShoppingCardItem implements Comparable<ShoppingCardItem> {
     @Getter
     @Setter
     @ManyToOne(targetEntity = ShoppingCard.class)
-    @JoinColumn(name = "shoppingCard")
+    @JoinColumn(name = "shopping_card_id")
     private ShoppingCard shoppingCard;
 
     @Getter
     @Setter
-    @Column(name = "bookId")
+    @Column(name = "book_id")
     private Long bookId;
 
     @NotNull
@@ -38,7 +38,7 @@ public class ShoppingCardItem implements Comparable<ShoppingCardItem> {
     @NotNull
     @Getter
     @Setter
-    @Column(name = "createDate")
+    @Column(name = "create_date")
     private java.time.LocalDate createDate;
 
     @Override

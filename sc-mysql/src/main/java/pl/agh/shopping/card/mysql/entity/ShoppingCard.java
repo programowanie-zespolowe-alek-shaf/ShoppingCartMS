@@ -26,7 +26,7 @@ public class ShoppingCard implements Comparable<ShoppingCard> {
     @NotNull
     @Getter
     @Setter
-    @Column(name = "createDate")
+    @Column(name = "create_date")
     private java.time.LocalDate createDate;
 
     @Override
