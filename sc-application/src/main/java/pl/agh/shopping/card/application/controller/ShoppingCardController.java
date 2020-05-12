@@ -1,58 +1,54 @@
 package pl.agh.shopping.card.application.controller;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pl.agh.shopping.card.application.dto.ShoppingCardRequestDTO;
+import pl.agh.shopping.card.application.dto.ShoppingCardResponseDTO;
 import pl.agh.shopping.card.application.service.ShoppingCardService;
-import pl.agh.shopping.card.application.service.ValidationService;
-import pl.agh.shopping.card.common.exception.CustomException;
 import pl.agh.shopping.card.common.response.ListResponse;
-import pl.agh.shopping.card.mysql.entity.ShoppingCard;
 
 import java.net.URI;
 
 import static pl.agh.shopping.card.common.util.ResponseFormat.APPLICATION_JSON;
 
 @RestController
-@RequestMapping(value = ShoppingCardController.PREFIX)
+@RequestMapping("/shoppingCards")
+@RequiredArgsConstructor
 public class ShoppingCardController {
-
-    static final String PREFIX = "/shoppingCards";
 
     private final ShoppingCardService shoppingCardService;
 
-    private final ValidationService validationService;
+    @PostMapping(consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    public ResponseEntity<?> addShoppingCard(@RequestBody ShoppingCardRequestDTO shoppingCardRequestDTO) {
 
-    @Autowired
-    public ShoppingCardController(ShoppingCardService shoppingCardService, ValidationService validationService) {
-        this.shoppingCardService = shoppingCardService;
-        this.validationService = validationService;
+        ShoppingCardResponseDTO createdShoppingCard = shoppingCardService.add(shoppingCardRequestDTO);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(createdShoppingCard.getId())
+                .toUri();
+
+        return ResponseEntity.created(uri)
+                .body(createdShoppingCard);
     }
 
-    @RequestMapping(method = RequestMethod.POST, produces = {APPLICATION_JSON})
-    public ResponseEntity addShoppingCard(@RequestBody ShoppingCardRequestDTO shoppingCardRequestDTO) throws CustomException {
+    @PutMapping(path = "{id}", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    public ResponseEntity<?> updateShoppingCard(@PathVariable("id") Long id, @RequestBody ShoppingCardRequestDTO shoppingCardRequestDTO) {
 
-        validationService.validate(shoppingCardRequestDTO);
-        ShoppingCard createdShoppingCard = shoppingCardService.add(shoppingCardRequestDTO);
-        if (createdShoppingCard == null) {
+        ShoppingCardResponseDTO updatedShoppingCard = shoppingCardService.update(id, shoppingCardRequestDTO);
+
+        if (updatedShoppingCard == null) {
             return ResponseEntity.notFound().build();
-        } else {
-            URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                    .path("/{id}")
-                    .buildAndExpand(createdShoppingCard.getId())
-                    .toUri();
-
-            return ResponseEntity.created(uri)
-                    .body(createdShoppingCard);
         }
+
+        return ResponseEntity.ok(updatedShoppingCard);
     }
 
-    @RequestMapping(value = "{id}", method = RequestMethod.GET, produces = {APPLICATION_JSON})
-    public ResponseEntity<ShoppingCard> getShoppingCard(@PathVariable("id") Long id) {
-        ShoppingCard shoppingCard = shoppingCardService.find(id);
+    @GetMapping(value = "{id}", produces = APPLICATION_JSON)
+    public ResponseEntity<ShoppingCardResponseDTO> getShoppingCard(@PathVariable("id") Long id) {
+        ShoppingCardResponseDTO shoppingCard = shoppingCardService.find(id);
         if (shoppingCard == null) {
             return ResponseEntity.notFound().build();
         } else {
@@ -60,22 +56,22 @@ public class ShoppingCardController {
         }
     }
 
-    @RequestMapping(value = "{id}", method = RequestMethod.DELETE, produces = {APPLICATION_JSON})
-    public ResponseEntity deleteShoppingCard(@PathVariable Long id) {
-        ShoppingCard deletedShoppingCard = shoppingCardService.delete(id);
+    @GetMapping(produces = APPLICATION_JSON)
+    public ResponseEntity<?> findShoppingCards(@RequestParam int limit,
+                                               @RequestParam int offset,
+                                               @RequestParam(required = false) String username) {
+
+        ListResponse shoppingCards = shoppingCardService.findAll(limit, offset, username);
+        return ResponseEntity.ok(shoppingCards);
+    }
+
+    @DeleteMapping(value = "{id}")
+    public ResponseEntity<?> deleteShoppingCard(@PathVariable Long id) {
+        var deletedShoppingCard = shoppingCardService.delete(id);
         if (deletedShoppingCard == null) {
             return ResponseEntity.notFound().build();
         } else {
             return ResponseEntity.noContent().build();
         }
-    }
-
-    @RequestMapping(method = RequestMethod.GET, produces = {APPLICATION_JSON})
-    public ResponseEntity findShoppingCards(@RequestParam int limit,
-                                            @RequestParam int offset,
-                                            @RequestParam(required = false) String username) {
-
-        ListResponse shoppingCards = shoppingCardService.findAll(limit, offset, username);
-        return ResponseEntity.ok(shoppingCards);
     }
 }

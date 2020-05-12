@@ -4,9 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pl.agh.shopping.card.mysql.entity.ShoppingCard;
 import pl.agh.shopping.card.mysql.entity.ShoppingCardItem;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.time.LocalDate;
 
 @Data
@@ -15,13 +16,16 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ShoppingCardItemRequestDTO {
 
-    private ShoppingCard shoppingCard;
+    @NotNull
+    @Positive
     private Long bookId;
+
+    @NotNull
+    @Positive
     private Integer quantity;
 
     public ShoppingCardItem toEntity() {
         return ShoppingCardItem.builder()
-                .shoppingCard(shoppingCard)
                 .bookId(bookId)
                 .quantity(quantity)
                 .createDate(LocalDate.now())

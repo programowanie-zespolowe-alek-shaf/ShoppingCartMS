@@ -9,6 +9,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ListResponse {
-    private List list;
+    private List<?> list;
     private int count;
 }
