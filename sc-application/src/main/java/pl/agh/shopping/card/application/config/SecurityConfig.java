@@ -31,7 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilterAfter(new JwtTokenAuthenticationFilter(jwtConfig, tokenHolder), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
-                .anyRequest().authenticated();
+                .anyRequest().permitAll(); // todo change
     }
 
     @Override
