@@ -57,6 +57,7 @@ public class UpdateShoppingCardItemControllerTest {
                 .put("id", 1)
                 .put("title", "Lalka")
                 .put("available", true)
+                .put("price", 0.99)
                 .build();
 
         Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/1", Map.class)).thenReturn(book);
@@ -80,6 +81,43 @@ public class UpdateShoppingCardItemControllerTest {
         shoppingCardItemRepository.save(shoppingCardItemBefore);
     }
 
+    @Test
+    public void checkForUpdateInActualPrice() throws Exception {
+
+        Map<String, Object> book = ImmutableMap.<String, Object>builder()
+                .put("id", 1)
+                .put("title", "Lalka")
+                .put("available", true)
+                .put("price", 0.99)
+                .build();
+
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/1", Map.class)).thenReturn(book);
+
+        ShoppingCardItem shoppingCardItemBefore = shoppingCardItemRepository.findById(1L).orElseThrow(null);
+
+        // initial value set in sql script. Keep it in sync fo #1 element
+        assertEquals(shoppingCardItemBefore.getActualPrice(), 1.234, 0.001);
+
+        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = new ShoppingCardItemRequestDTO(1L, 11);
+
+        String requestJson = mapObjectToStringJson(shoppingCardItemRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.put("/shoppingCards/1/items/1").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("quantity").value("11"))
+                .andExpect(jsonPath("actualPrice").value(0.99));
+
+        ShoppingCardItem shoppingCardItemAfter = shoppingCardItemRepository.findById(1L).orElse(null);
+
+        assertEquals(shoppingCardItemAfter.getActualPrice(), 0.99, 0.001);
+
+        assertNotNull(shoppingCardItemAfter);
+        assertEquals(1L, shoppingCardItemAfter.getId(), 0.01);
+        assertEquals(shoppingCardItemAfter.getQuantity(), Integer.valueOf(11));
+
+        shoppingCardItemRepository.save(shoppingCardItemBefore);
+    }
 
     @Test
     public void noQuantityFailedTest() throws Exception {

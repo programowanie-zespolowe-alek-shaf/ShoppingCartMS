@@ -37,6 +37,8 @@ public class ShoppingCardItemService {
         shoppingCardItem.setShoppingCard(shoppingCart.get());
 
         var bookInfo = getBookInfo(shoppingCardItem);
+        Double price = (Double) bookInfo.get("price");
+        shoppingCardItem.setActualPrice(price.floatValue());
         return getItemResponseDTO(shoppingCardItemRepository.save(shoppingCardItem), bookInfo);
     }
 
@@ -63,6 +65,8 @@ public class ShoppingCardItemService {
         shoppingCardItem.setId(id);
         shoppingCardItem.setShoppingCard(shoppingCard.get());
         var bookInfo = getBookInfo(shoppingCardItem);
+        Double price = (Double) bookInfo.get("price");
+        shoppingCardItem.setActualPrice(price.floatValue());
         return getItemResponseDTO(shoppingCardItemRepository.save(shoppingCardItem), bookInfo);
     }
 

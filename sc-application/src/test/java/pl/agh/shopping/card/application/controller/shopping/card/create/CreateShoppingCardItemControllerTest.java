@@ -53,11 +53,11 @@ public class CreateShoppingCardItemControllerTest {
     public void successTest() throws Exception {
 
 
-
         Map<String, Object> book = ImmutableMap.<String, Object>builder()
                 .put("id", 1)
                 .put("title", "Lalka")
                 .put("available", true)
+                .put("price", 0.99)
                 .build();
 
         Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/1", Map.class)).thenReturn(book);
@@ -70,7 +70,8 @@ public class CreateShoppingCardItemControllerTest {
                 .content(requestJson))
                 .andExpect(status().is(201))
                 .andExpect(jsonPath("$.book.id").value("1"))
-                .andExpect(jsonPath("quantity").value("1"));
+                .andExpect(jsonPath("quantity").value("1"))
+                .andExpect(jsonPath("actualPrice").value(0.99F));
 
         List<ShoppingCardItem> all = shoppingCardItemRepository.findAll();
         ShoppingCardItem shoppingCardItem = all.get(all.size() - 1);
@@ -78,6 +79,39 @@ public class CreateShoppingCardItemControllerTest {
         assertNotNull(shoppingCardItem);
         assertEquals(1L, shoppingCardItem.getBookId(), 0.01);
         assertEquals(shoppingCardItem.getQuantity(), Integer.valueOf(1));
+
+        shoppingCardItemRepository.delete(shoppingCardItem);
+    }
+
+    @Test
+    public void checkIfActualPriceWasAdded() throws Exception {
+
+
+        Map<String, Object> book = ImmutableMap.<String, Object>builder()
+                .put("id", 1)
+                .put("title", "Lalka")
+                .put("available", true)
+                .put("price", 0.99)
+                .build();
+
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/1", Map.class)).thenReturn(book);
+
+        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = new ShoppingCardItemRequestDTO(1L, 10);
+
+        String requestJson = TestUtils.mapObjectToStringJson(shoppingCardItemRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.post("/shoppingCards/1/items/").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(201))
+                .andExpect(jsonPath("$.book.id").value("1"))
+                .andExpect(jsonPath("actualPrice").value(0.99F));
+
+        List<ShoppingCardItem> all = shoppingCardItemRepository.findAll();
+        ShoppingCardItem shoppingCardItem = all.get(all.size() - 1);
+
+        assertNotNull(shoppingCardItem);
+        assertEquals(1L, shoppingCardItem.getBookId(), 0.01);
+        assertEquals(shoppingCardItem.getQuantity(), Integer.valueOf(10));
 
         shoppingCardItemRepository.delete(shoppingCardItem);
     }
