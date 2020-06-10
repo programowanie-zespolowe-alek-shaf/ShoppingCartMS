@@ -29,16 +29,31 @@ public class ShoppingCardItemService {
     private final RestClient restClient;
 
     public ShoppingCardItemResponseDTO add(Long shoppingCardId, ShoppingCardItemRequestDTO shoppingCardItemRequestDTO) throws CustomException {
+
         var shoppingCart = shoppingCardRepository.findById(shoppingCardId);
         if (shoppingCart.isEmpty()) {
             throw new BadRequestException("shopping card not found");
         }
+
         var shoppingCardItem = shoppingCardItemRequestDTO.toEntity();
         shoppingCardItem.setShoppingCard(shoppingCart.get());
-
         var bookInfo = getBookInfo(shoppingCardItem);
         Double price = (Double) bookInfo.get("price");
         shoppingCardItem.setActualPrice(price.floatValue());
+
+        var allByShoppingCard_idAndBookId = shoppingCardItemRepository.findAllByShoppingCard_IdAndBookId(shoppingCardId, shoppingCardItem.getBookId());
+        if (allByShoppingCard_idAndBookId != null && allByShoppingCard_idAndBookId.size() > 0) {
+            ShoppingCardItem shoppingCardItemFromRepository = allByShoppingCard_idAndBookId.get(0);
+            shoppingCardItem.setId(shoppingCardItemFromRepository.getId());
+            shoppingCardItem.setQuantity(allByShoppingCard_idAndBookId.stream().mapToInt(ShoppingCardItem::getQuantity).sum() + shoppingCardItem.getQuantity());
+
+            if (allByShoppingCard_idAndBookId.size() > 1) {
+                for (int i = 1; i < allByShoppingCard_idAndBookId.size(); i++) {
+                    shoppingCardItemRepository.delete(allByShoppingCard_idAndBookId.get(i));
+                }
+            }
+        }
+
         return getItemResponseDTO(shoppingCardItemRepository.save(shoppingCardItem), bookInfo);
     }
 

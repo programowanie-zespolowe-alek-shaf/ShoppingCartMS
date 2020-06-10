@@ -25,9 +25,9 @@ import pl.agh.shopping.card.mysql.repository.ShoppingCardItemRepository;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -54,6 +54,40 @@ public class CreateShoppingCardItemControllerTest {
 
 
         Map<String, Object> book = ImmutableMap.<String, Object>builder()
+                .put("id", 3)
+                .put("title", "Lalka")
+                .put("available", true)
+                .put("price", 0.99)
+                .build();
+
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/3", Map.class)).thenReturn(book);
+
+        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = new ShoppingCardItemRequestDTO(3L, 1);
+
+        String requestJson = TestUtils.mapObjectToStringJson(shoppingCardItemRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.post("/shoppingCards/1/items/").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(201))
+                .andExpect(jsonPath("$.book.id").value("3"))
+                .andExpect(jsonPath("quantity").value("1"))
+                .andExpect(jsonPath("actualPrice").value(0.99F));
+
+        List<ShoppingCardItem> all = shoppingCardItemRepository.findAll();
+        ShoppingCardItem shoppingCardItem = all.get(all.size() - 1);
+
+        assertNotNull(shoppingCardItem);
+        assertEquals(3L, shoppingCardItem.getBookId(), 0.01);
+        assertEquals(shoppingCardItem.getQuantity(), Integer.valueOf(1));
+
+        shoppingCardItemRepository.delete(shoppingCardItem);
+    }
+
+    @Test
+    public void sameBookSuccessTest() throws Exception {
+
+
+        Map<String, Object> book = ImmutableMap.<String, Object>builder()
                 .put("id", 1)
                 .put("title", "Lalka")
                 .put("available", true)
@@ -70,15 +104,16 @@ public class CreateShoppingCardItemControllerTest {
                 .content(requestJson))
                 .andExpect(status().is(201))
                 .andExpect(jsonPath("$.book.id").value("1"))
-                .andExpect(jsonPath("quantity").value("1"))
+                .andExpect(jsonPath("quantity").value("4"))
                 .andExpect(jsonPath("actualPrice").value(0.99F));
 
-        List<ShoppingCardItem> all = shoppingCardItemRepository.findAll();
-        ShoppingCardItem shoppingCardItem = all.get(all.size() - 1);
+        Optional<ShoppingCardItem> optionalShoppingCardItem = shoppingCardItemRepository.findById(1L);
 
+        assertTrue(optionalShoppingCardItem.isPresent());
+        ShoppingCardItem shoppingCardItem = optionalShoppingCardItem.get();
         assertNotNull(shoppingCardItem);
         assertEquals(1L, shoppingCardItem.getBookId(), 0.01);
-        assertEquals(shoppingCardItem.getQuantity(), Integer.valueOf(1));
+        assertEquals(shoppingCardItem.getQuantity(), Integer.valueOf(4));
 
         shoppingCardItemRepository.delete(shoppingCardItem);
     }
@@ -88,29 +123,29 @@ public class CreateShoppingCardItemControllerTest {
 
 
         Map<String, Object> book = ImmutableMap.<String, Object>builder()
-                .put("id", 1)
+                .put("id", 3)
                 .put("title", "Lalka")
                 .put("available", true)
                 .put("price", 0.99)
                 .build();
 
-        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/1", Map.class)).thenReturn(book);
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/3", Map.class)).thenReturn(book);
 
-        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = new ShoppingCardItemRequestDTO(1L, 10);
+        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = new ShoppingCardItemRequestDTO(3L, 10);
 
         String requestJson = TestUtils.mapObjectToStringJson(shoppingCardItemRequestDTO);
 
         mvc.perform(MockMvcRequestBuilders.post("/shoppingCards/1/items/").contentType(APPLICATION_JSON_UTF8)
                 .content(requestJson))
                 .andExpect(status().is(201))
-                .andExpect(jsonPath("$.book.id").value("1"))
+                .andExpect(jsonPath("$.book.id").value("3"))
                 .andExpect(jsonPath("actualPrice").value(0.99F));
 
         List<ShoppingCardItem> all = shoppingCardItemRepository.findAll();
         ShoppingCardItem shoppingCardItem = all.get(all.size() - 1);
 
         assertNotNull(shoppingCardItem);
-        assertEquals(1L, shoppingCardItem.getBookId(), 0.01);
+        assertEquals(3L, shoppingCardItem.getBookId(), 0.01);
         assertEquals(shoppingCardItem.getQuantity(), Integer.valueOf(10));
 
         shoppingCardItemRepository.delete(shoppingCardItem);

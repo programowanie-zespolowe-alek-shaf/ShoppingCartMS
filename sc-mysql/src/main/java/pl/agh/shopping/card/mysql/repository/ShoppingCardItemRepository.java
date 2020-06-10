@@ -10,4 +10,7 @@ public interface ShoppingCardItemRepository extends CrudRepository<ShoppingCardI
     List<ShoppingCardItem> findAll();
 
     List<ShoppingCardItem> findAllByShoppingCard_Id(Long shoppingCardId);
+
+    List<ShoppingCardItem> findAllByShoppingCard_IdAndBookId(Long shoppingCardId, Long bookId);
+
 }
