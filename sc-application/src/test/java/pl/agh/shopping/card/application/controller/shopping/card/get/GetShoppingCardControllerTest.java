@@ -64,7 +64,7 @@ public class GetShoppingCardControllerTest {
                 .andExpect(jsonPath("items.list[1].book.id").value("2"))
                 .andExpect(jsonPath("items.list[1].book.title").value("Dziady"))
                 .andExpect(jsonPath("items.list[1].book.available").value("true"))
-                .andExpect(jsonPath("items.count").value("2"));
+                .andExpect(jsonPath("items.count").value("4"));
     }
 
     @Test

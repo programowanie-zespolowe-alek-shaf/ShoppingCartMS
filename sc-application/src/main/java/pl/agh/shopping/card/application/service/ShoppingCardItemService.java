@@ -97,7 +97,7 @@ public class ShoppingCardItemService {
     public ListResponse findAll(Long shoppingCardId, int limit, int offset) {
         List<ShoppingCardItem> shoppingCardItems = shoppingCardItemRepository.findAllByShoppingCard_Id(shoppingCardId);
 
-        int count = shoppingCardItems.size();
+        int count = shoppingCardItems.stream().mapToInt(ShoppingCardItem::getQuantity).sum();
         shoppingCardItems = ListUtil.clampedSublist(shoppingCardItems, limit, offset);
 
         var cardItemResponseDTOS = shoppingCardItems.stream().map(this::getItemResponseDTO).collect(Collectors.toList());

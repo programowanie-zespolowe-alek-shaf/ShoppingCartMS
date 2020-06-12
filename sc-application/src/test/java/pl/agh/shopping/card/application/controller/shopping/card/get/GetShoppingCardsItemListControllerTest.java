@@ -82,7 +82,7 @@ public class GetShoppingCardsItemListControllerTest {
                 .andExpect(jsonPath("list[1].book.id").value("2"))
                 .andExpect(jsonPath("list[1].quantity").value("1"))
                 .andExpect(jsonPath("list[1].createDate").value("2020-05-04"))
-                .andExpect(jsonPath("count").value("2"));
+                .andExpect(jsonPath("count").value("4"));
     }
 
     @Test
@@ -137,7 +137,7 @@ public class GetShoppingCardsItemListControllerTest {
                 .andExpect(jsonPath("list[0].book.id").value("2"))
                 .andExpect(jsonPath("list[0].quantity").value("1"))
                 .andExpect(jsonPath("list[0].createDate").value("2020-05-04"))
-                .andExpect(jsonPath("count").value("2"));
+                .andExpect(jsonPath("count").value("4"));
     }
 
     @Test
@@ -163,6 +163,6 @@ public class GetShoppingCardsItemListControllerTest {
                 .param("limit", "0"))
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("list").isEmpty())
-                .andExpect(jsonPath("count").value("2"));
+                .andExpect(jsonPath("count").value("4"));
     }
 }
