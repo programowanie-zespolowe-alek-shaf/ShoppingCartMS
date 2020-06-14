@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.agh.shopping.card.application.config.TestUtils;
+import pl.agh.shopping.card.application.config.WithCustomUser;
 import pl.agh.shopping.card.application.dto.ShoppingCardRequestDTO;
 import pl.agh.shopping.card.application.rest.url.URLProvider;
 import pl.agh.shopping.card.mysql.entity.ShoppingCard;
@@ -46,6 +47,50 @@ public class CreateShoppingCardControllerTest {
     private URLProvider urlProvider;
 
     @Test
+    @WithCustomUser("user123")
+    public void loggedInSuccessTest() throws Exception {
+
+        ShoppingCardRequestDTO shoppingCardRequestDTO = ShoppingCardRequestDTO.builder().username("user123").build();
+
+        String requestJson = TestUtils.mapObjectToStringJson(shoppingCardRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.post("/shoppingCards").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(201))
+                .andExpect(jsonPath("username").value("user123"));
+
+        ShoppingCard shoppingCard = shoppingCardRepository.findById(3l).orElse(null);
+
+        assertNotNull(shoppingCard);
+        assertEquals("user123", shoppingCard.getUsername());
+        assertEquals(LocalDate.now(), shoppingCard.getCreateDate());
+
+        shoppingCardRepository.delete(shoppingCard);
+    }
+
+    @Test
+    @WithCustomUser(roles = "ADMIN")
+    public void adminSuccessTest() throws Exception {
+
+        ShoppingCardRequestDTO shoppingCardRequestDTO = ShoppingCardRequestDTO.builder().username("user123").build();
+
+        String requestJson = TestUtils.mapObjectToStringJson(shoppingCardRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.post("/shoppingCards").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(201))
+                .andExpect(jsonPath("username").value("user123"));
+
+        ShoppingCard shoppingCard = shoppingCardRepository.findById(3l).orElse(null);
+
+        assertNotNull(shoppingCard);
+        assertEquals("user123", shoppingCard.getUsername());
+        assertEquals(LocalDate.now(), shoppingCard.getCreateDate());
+
+        shoppingCardRepository.delete(shoppingCard);
+    }
+
+    @Test
     public void successTest() throws Exception {
 
         ShoppingCardRequestDTO shoppingCardRequestDTO = ShoppingCardRequestDTO.builder().username("user123").build();
@@ -67,6 +112,20 @@ public class CreateShoppingCardControllerTest {
     }
 
     @Test
+    @WithCustomUser("anotherUser")
+    public void otherSuccessTest() throws Exception {
+
+        ShoppingCardRequestDTO shoppingCardRequestDTO = ShoppingCardRequestDTO.builder().username("user123").build();
+
+        String requestJson = TestUtils.mapObjectToStringJson(shoppingCardRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.post("/shoppingCards").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(403));
+    }
+
+
+    @Test
     public void noUsernameSuccessTest() throws Exception {
         ShoppingCardRequestDTO shoppingCardRequestDTO = ShoppingCardRequestDTO.builder().build();
 
@@ -80,5 +139,35 @@ public class CreateShoppingCardControllerTest {
                 .andExpect(jsonPath("createDate").value(LocalDate.now().toString()))
                 .andExpect(jsonPath("items.count").value(0))
                 .andExpect(jsonPath("items.list").isEmpty());
+    }
+
+
+    @Test
+    @WithCustomUser(roles = "ADMIN")
+    public void adminNoUsernameSuccessTest() throws Exception {
+        ShoppingCardRequestDTO shoppingCardRequestDTO = ShoppingCardRequestDTO.builder().build();
+
+        String requestJson = TestUtils.mapObjectToStringJson(shoppingCardRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.post("/shoppingCards").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(201))
+                .andExpect(jsonPath("id").value("3"))
+                .andExpect(jsonPath("username").doesNotExist())
+                .andExpect(jsonPath("createDate").value(LocalDate.now().toString()))
+                .andExpect(jsonPath("items.count").value(0))
+                .andExpect(jsonPath("items.list").isEmpty());
+    }
+
+    @Test
+    @WithCustomUser("anotherUser")
+    public void otherNoUsernameSuccessTest() throws Exception {
+        ShoppingCardRequestDTO shoppingCardRequestDTO = ShoppingCardRequestDTO.builder().build();
+
+        String requestJson = TestUtils.mapObjectToStringJson(shoppingCardRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.post("/shoppingCards").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(403));
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import pl.agh.shopping.card.application.config.WithCustomUser;
 import pl.agh.shopping.card.application.rest.MicroService;
 import pl.agh.shopping.card.application.rest.RestClient;
 
@@ -34,6 +35,93 @@ public class GetShoppingCardControllerTest {
     private MockMvc mvc;
     @MockBean
     private RestClient restClient;
+
+    @Test
+    @WithCustomUser(roles = "ADMIN")
+    public void adminSuccessTest() throws Exception {
+        Map<String, Object> book = ImmutableMap.<String, Object>builder()
+                .put("id", 1)
+                .put("title", "Lalka")
+                .put("available", true)
+                .build();
+        Map<String, Object> book2 = ImmutableMap.<String, Object>builder()
+                .put("id", 2)
+                .put("title", "Dziady")
+                .put("available", true)
+                .build();
+
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/1", Map.class)).thenReturn(book);
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/2", Map.class)).thenReturn(book2);
+
+        mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("id").value("1"))
+                .andExpect(jsonPath("username").value("user1"))
+                .andExpect(jsonPath("createDate").value("2020-05-04"))
+                .andExpect(jsonPath("items.list[0].id").value("1"))
+                .andExpect(jsonPath("items.list[0].book.id").value("1"))
+                .andExpect(jsonPath("items.list[0].book.title").value("Lalka"))
+                .andExpect(jsonPath("items.list[0].book.available").value("true"))
+                .andExpect(jsonPath("items.list[1].id").value("2"))
+                .andExpect(jsonPath("items.list[1].book.id").value("2"))
+                .andExpect(jsonPath("items.list[1].book.title").value("Dziady"))
+                .andExpect(jsonPath("items.list[1].book.available").value("true"))
+                .andExpect(jsonPath("items.count").value("2"));
+    }
+
+    @Test
+    @WithCustomUser("user123")
+    public void loggedInSuccessTest() throws Exception {
+        Map<String, Object> book = ImmutableMap.<String, Object>builder()
+                .put("id", 1)
+                .put("title", "Lalka")
+                .put("available", true)
+                .build();
+        Map<String, Object> book2 = ImmutableMap.<String, Object>builder()
+                .put("id", 2)
+                .put("title", "Dziady")
+                .put("available", true)
+                .build();
+
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/1", Map.class)).thenReturn(book);
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/2", Map.class)).thenReturn(book2);
+
+        mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("id").value("1"))
+                .andExpect(jsonPath("username").value("user1"))
+                .andExpect(jsonPath("createDate").value("2020-05-04"))
+                .andExpect(jsonPath("items.list[0].id").value("1"))
+                .andExpect(jsonPath("items.list[0].book.id").value("1"))
+                .andExpect(jsonPath("items.list[0].book.title").value("Lalka"))
+                .andExpect(jsonPath("items.list[0].book.available").value("true"))
+                .andExpect(jsonPath("items.list[1].id").value("2"))
+                .andExpect(jsonPath("items.list[1].book.id").value("2"))
+                .andExpect(jsonPath("items.list[1].book.title").value("Dziady"))
+                .andExpect(jsonPath("items.list[1].book.available").value("true"))
+                .andExpect(jsonPath("items.count").value("2"));
+    }
+
+    @Test
+    @WithCustomUser("anotherUser")
+    public void otherSuccessTest() throws Exception {
+        Map<String, Object> book = ImmutableMap.<String, Object>builder()
+                .put("id", 1)
+                .put("title", "Lalka")
+                .put("available", true)
+                .build();
+        Map<String, Object> book2 = ImmutableMap.<String, Object>builder()
+                .put("id", 2)
+                .put("title", "Dziady")
+                .put("available", true)
+                .build();
+
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/1", Map.class)).thenReturn(book);
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/2", Map.class)).thenReturn(book2);
+
+        mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1"))
+                .andExpect(status().is(403));
+    }
 
     @Test
     public void successTest() throws Exception {
@@ -65,6 +153,28 @@ public class GetShoppingCardControllerTest {
                 .andExpect(jsonPath("items.list[1].book.title").value("Dziady"))
                 .andExpect(jsonPath("items.list[1].book.available").value("true"))
                 .andExpect(jsonPath("items.count").value("2"));
+    }
+
+
+    @Test
+    @WithCustomUser(roles = "ADMIN")
+    public void adminNotFoundTest() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/10"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @WithCustomUser("user123")
+    public void loggedInNotFoundTest() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/10"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @WithCustomUser("anotherUser")
+    public void otherNotFoundTest() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/10"))
+                .andExpect(status().is(403));
     }
 
     @Test
