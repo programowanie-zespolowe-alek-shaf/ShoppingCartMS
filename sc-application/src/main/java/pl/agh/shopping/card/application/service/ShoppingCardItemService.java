@@ -102,7 +102,10 @@ public class ShoppingCardItemService {
 
         var cardItemResponseDTOS = shoppingCardItems.stream().map(this::getItemResponseDTO).collect(Collectors.toList());
 
-        return new ListResponse(cardItemResponseDTOS, count);
+        Double totalValue = shoppingCardItems.stream()
+                .mapToDouble(obj -> obj.getActualPrice() * obj.getQuantity())
+                .sum();
+        return new ListResponse(cardItemResponseDTOS, count, totalValue);
     }
 
     private Map<String, Object> getBookInfo(ShoppingCardItem shoppingCardItem) throws BadRequestException {

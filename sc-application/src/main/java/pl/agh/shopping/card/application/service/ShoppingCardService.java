@@ -56,7 +56,11 @@ public class ShoppingCardService {
 
         var cardResponseDTOS = shoppingCards.stream().map(this::getShoppingCardResponseDTO).collect(Collectors.toList());
 
-        return new ListResponse(cardResponseDTOS, count);
+        Double totalValue = cardResponseDTOS.stream()
+                .mapToDouble(obj -> obj.getItems().getTotalValue())
+                .sum();
+
+        return new ListResponse(cardResponseDTOS, count, totalValue);
     }
 
     public ShoppingCardResponseDTO update(Long id, ShoppingCardRequestDTO shoppingCardRequestDTO) {
