@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -27,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest()
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@WithMockUser
 @Sql({"classpath:schema-shopping.sql", "classpath:data-shopping.sql"})
 public class GetShoppingCardControllerTest {
 
@@ -70,7 +68,7 @@ public class GetShoppingCardControllerTest {
     }
 
     @Test
-    @WithCustomUser("user123")
+    @WithCustomUser()
     public void loggedInSuccessTest() throws Exception {
         Map<String, Object> book = ImmutableMap.<String, Object>builder()
                 .put("id", 1)
@@ -140,7 +138,7 @@ public class GetShoppingCardControllerTest {
         Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/2", Map.class)).thenReturn(book2);
 
         mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1"))
-                .andExpect(status().is(200))
+                .andExpect(status().is(401))
                 .andExpect(jsonPath("id").value("1"))
                 .andExpect(jsonPath("username").value("user1"))
                 .andExpect(jsonPath("createDate").value("2020-05-04"))

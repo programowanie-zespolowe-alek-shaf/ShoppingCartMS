@@ -8,6 +8,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pl.agh.shopping.card.application.dto.ShoppingCardItemRequestDTO;
 import pl.agh.shopping.card.application.dto.ShoppingCardItemResponseDTO;
 import pl.agh.shopping.card.application.service.ShoppingCardItemService;
+import pl.agh.shopping.card.common.exception.BadRequestException;
 import pl.agh.shopping.card.common.exception.CustomException;
 import pl.agh.shopping.card.common.response.ListResponse;
 
@@ -57,7 +58,7 @@ public class ShoppingCardItemController {
     }
 
     @GetMapping(value = "{id}", produces = APPLICATION_JSON)
-    public ResponseEntity<ShoppingCardItemResponseDTO> getShoppingCardItem(@PathVariable("id") Long id) {
+    public ResponseEntity<ShoppingCardItemResponseDTO> getShoppingCardItem(@PathVariable("id") Long id) throws BadRequestException {
         ShoppingCardItemResponseDTO shoppingCardItem = shoppingCardItemService.find(id);
         if (shoppingCardItem == null) {
             return ResponseEntity.notFound().build();
@@ -71,7 +72,7 @@ public class ShoppingCardItemController {
             @PathVariable("shoppingCardId") Long shoppingCardId,
             @RequestParam int limit,
             @RequestParam int offset
-    ) {
+    ) throws Exception {
 
         ListResponse shoppingCardItems = shoppingCardItemService.findAll(shoppingCardId, limit, offset);
         return ResponseEntity.ok(shoppingCardItems);

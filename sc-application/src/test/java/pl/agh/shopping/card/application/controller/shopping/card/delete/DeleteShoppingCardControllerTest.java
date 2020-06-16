@@ -137,17 +137,10 @@ public class DeleteShoppingCardControllerTest {
 
 
     @Test
-    @WithCustomUser("user123")
+    @WithCustomUser()
     public void loggedInNotFoundTest() throws Exception {
         mvc.perform(MockMvcRequestBuilders.delete("/shoppingCards/111"))
                 .andExpect(status().is(404));
-    }
-
-    @Test
-    @WithCustomUser("anotherUser")
-    public void otherNotFoundTest() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.delete("/shoppingCards/111"))
-                .andExpect(status().is(403));
     }
 
     @Test
