@@ -73,7 +73,11 @@ public class ShoppingCardService {
             cardResponseDTOS.add(shoppingCardResponseDTO);
         }
 
-        return new ListResponse(cardResponseDTOS, count);
+        Double totalValue = cardResponseDTOS.stream()
+                .mapToDouble(obj -> obj.getItems().getTotalValue())
+                .sum();
+
+        return new ListResponse(cardResponseDTOS, count, totalValue);
     }
 
     public ShoppingCardResponseDTO update(Long id, ShoppingCardRequestDTO shoppingCardRequestDTO) throws Exception {

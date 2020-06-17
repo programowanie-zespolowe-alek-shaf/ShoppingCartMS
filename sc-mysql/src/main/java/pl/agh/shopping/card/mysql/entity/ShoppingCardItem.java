@@ -41,6 +41,12 @@ public class ShoppingCardItem implements Comparable<ShoppingCardItem> {
     @Column(name = "create_date")
     private java.time.LocalDate createDate;
 
+    @NotNull
+    @Getter
+    @Setter
+    @Column(name = "actual_price")
+    private Float actualPrice;
+
     @Override
     public int compareTo(ShoppingCardItem o) {
         return this.id.compareTo(o.getId());

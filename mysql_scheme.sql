@@ -19,5 +19,6 @@ CREATE TABLE shopping_card_item
     book_id          BIGINT                            NOT NULL,
     quantity         BIGINT                            NOT NULL,
     create_date      DATE                              NOT NULL,
+    actual_price     DECIMAL(10, 2)                    NOT NULL,
     FOREIGN KEY (shopping_card_id) REFERENCES shopping_card (id)
 );

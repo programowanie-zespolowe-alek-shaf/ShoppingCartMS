@@ -31,7 +31,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilterAfter(new JwtTokenAuthenticationFilter(jwtConfig, tokenHolder), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
+                .antMatchers("/actuator/**").hasRole("ADMIN")
                 .anyRequest().permitAll(); // todo change
+
     }
 
     @Override

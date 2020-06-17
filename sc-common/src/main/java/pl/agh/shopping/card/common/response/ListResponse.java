@@ -11,4 +11,5 @@ import java.util.List;
 public class ListResponse {
     private List<?> list;
     private int count;
+    private Double totalValue;
 }
