@@ -9,7 +9,6 @@ import pl.agh.shopping.card.common.util.ListUtil;
 import pl.agh.shopping.card.mysql.entity.ShoppingCard;
 import pl.agh.shopping.card.mysql.repository.ShoppingCardRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,7 +21,7 @@ public class ShoppingCardService {
     private final ShoppingCardItemService shoppingCardItemService;
     private final AuthorizationService authorizationService;
 
-    public ShoppingCardResponseDTO add(ShoppingCardRequestDTO shoppingCardRequestDTO) throws Exception {
+    public ShoppingCardResponseDTO add(ShoppingCardRequestDTO shoppingCardRequestDTO) {
         ShoppingCard shoppingCard = shoppingCardRequestDTO.toEntity();
         authorizationService.checkAuthorization(shoppingCard.getUsername());
 
@@ -31,14 +30,12 @@ public class ShoppingCardService {
         return getShoppingCardResponseDTO(savedShoppingCard);
     }
 
-    public ShoppingCardResponseDTO find(Long id) throws Exception {
+    public ShoppingCardResponseDTO find(Long id) {
         Optional<ShoppingCard> shoppingCardOp = shoppingCardRepository.findById(id);
 
         if (shoppingCardOp.isEmpty()) {
             return null;
         }
-        ShoppingCard card = shoppingCardOp.get();
-        authorizationService.checkAuthorization(card.getUsername());
 
         return getShoppingCardResponseDTO(shoppingCardOp.get());
     }
@@ -55,11 +52,8 @@ public class ShoppingCardService {
         return card;
     }
 
-    public ListResponse findAll(int limit, int offset, String username) throws Exception {
+    public ListResponse findAll(int limit, int offset, String username) {
         List<ShoppingCard> shoppingCards = shoppingCardRepository.findAll();
-        for (ShoppingCard card : shoppingCards) {
-            authorizationService.checkAuthorization(card.getUsername());
-        }
 
         if (username != null) {
             shoppingCards = shoppingCards.stream().filter(shoppingCard -> shoppingCard.getUsername().equals(username)).collect(Collectors.toList());
@@ -67,11 +61,7 @@ public class ShoppingCardService {
         int count = shoppingCards.size();
         shoppingCards = ListUtil.clampedSublist(shoppingCards, limit, offset);
 
-        var cardResponseDTOS = new ArrayList<>();
-        for (ShoppingCard shoppingCard : shoppingCards) {
-            ShoppingCardResponseDTO shoppingCardResponseDTO = getShoppingCardResponseDTO(shoppingCard);
-            cardResponseDTOS.add(shoppingCardResponseDTO);
-        }
+        var cardResponseDTOS = shoppingCards.stream().map(this::getShoppingCardResponseDTO).collect(Collectors.toList());
 
         Double totalValue = cardResponseDTOS.stream()
                 .mapToDouble(obj -> obj.getItems().getTotalValue())
@@ -80,7 +70,7 @@ public class ShoppingCardService {
         return new ListResponse(cardResponseDTOS, count, totalValue);
     }
 
-    public ShoppingCardResponseDTO update(Long id, ShoppingCardRequestDTO shoppingCardRequestDTO) throws Exception {
+    public ShoppingCardResponseDTO update(Long id, ShoppingCardRequestDTO shoppingCardRequestDTO) {
         Optional<ShoppingCard> shoppingCardOp = shoppingCardRepository.findById(id);
 
         if (shoppingCardOp.isEmpty()) {
@@ -96,7 +86,7 @@ public class ShoppingCardService {
         return getShoppingCardResponseDTO(savedShoppingCard);
     }
 
-    private ShoppingCardResponseDTO getShoppingCardResponseDTO(ShoppingCard shoppingCard) throws Exception {
+    private ShoppingCardResponseDTO getShoppingCardResponseDTO(ShoppingCard shoppingCard) {
         ListResponse itemsResponseDTOS = shoppingCardItemService.findAll(shoppingCard.getId(), Integer.MAX_VALUE, 0);
         return new ShoppingCardResponseDTO(shoppingCard, itemsResponseDTOS);
     }

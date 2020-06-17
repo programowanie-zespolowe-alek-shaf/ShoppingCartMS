@@ -13,6 +13,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import pl.agh.shopping.card.application.config.WithCustomUser;
 import pl.agh.shopping.card.application.rest.MicroService;
 import pl.agh.shopping.card.application.rest.RestClient;
 
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest()
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@WithCustomUser(roles = "ADMIN")
 @Sql({"classpath:schema-shopping.sql", "classpath:data-shopping.sql"})
 public class GetShoppingCardsListControllerTest {
 

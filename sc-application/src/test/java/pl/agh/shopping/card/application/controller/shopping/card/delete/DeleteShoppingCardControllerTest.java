@@ -117,22 +117,7 @@ public class DeleteShoppingCardControllerTest {
 
         mvc.perform(MockMvcRequestBuilders.post("/shoppingCards").contentType(APPLICATION_JSON_UTF8)
                 .content(requestJson))
-                .andExpect(status().is(201))
-                .andExpect(jsonPath("username").value("user123"));
-
-        List<ShoppingCard> all = shoppingCardRepository.findAll();
-        ShoppingCard shoppingCard = all.get(all.size() - 1);
-        Long id = shoppingCard.getId();
-
-        assertNotNull(shoppingCard);
-        assertEquals("user123", shoppingCard.getUsername());
-
-        mvc.perform(MockMvcRequestBuilders.delete("/shoppingCards/" + id))
-                .andExpect(status().is(204));
-
-        ShoppingCard shoppingCardAfterDelete = shoppingCardRepository.findById(id).orElse(null);
-
-        assertNull(shoppingCardAfterDelete);
+                .andExpect(status().is(401));
     }
 
 

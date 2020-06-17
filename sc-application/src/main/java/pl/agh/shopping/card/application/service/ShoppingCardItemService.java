@@ -16,11 +16,11 @@ import pl.agh.shopping.card.mysql.entity.ShoppingCardItem;
 import pl.agh.shopping.card.mysql.repository.ShoppingCardItemRepository;
 import pl.agh.shopping.card.mysql.repository.ShoppingCardRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -78,7 +78,7 @@ public class ShoppingCardItemService {
         return getItemResponseDTO(cardItem);
     }
 
-    public ShoppingCardItemResponseDTO update(Long shoppingCardId, Long id, ShoppingCardItemRequestDTO shoppingCardItemRequestDTO) throws BadRequestException {
+    public ShoppingCardItemResponseDTO update(Long shoppingCardId, Long id, ShoppingCardItemRequestDTO shoppingCardItemRequestDTO) throws Exception {
         var shoppingCart = shoppingCardRepository.findById(shoppingCardId);
 
         if (!shoppingCardItemRepository.existsById(id)) {
@@ -102,8 +102,7 @@ public class ShoppingCardItemService {
         return getItemResponseDTO(shoppingCardItemRepository.save(shoppingCardItem), bookInfo);
     }
 
-    //nope
-    public ShoppingCardItem delete(Long id) {
+    public ShoppingCardItem delete(Long id) throws Exception {
         Optional<ShoppingCardItem> shoppingCardItem = shoppingCardItemRepository.findById(id);
         if (shoppingCardItem.isEmpty()) {
             return null;
@@ -118,10 +117,10 @@ public class ShoppingCardItemService {
         return shoppingCardItem.get();
     }
 
-    public ListResponse findAll(Long shoppingCardId, int limit, int offset) throws Exception {
+    public ListResponse findAll(Long shoppingCardId, int limit, int offset) {
         List<ShoppingCardItem> shoppingCardItems = shoppingCardItemRepository.findAllByShoppingCard_Id(shoppingCardId);
-        var shoppingCart = shoppingCardRepository.findById(shoppingCardId);
-
+        ShoppingCard shoppingCard = shoppingCardRepository.findById(shoppingCardId).orElse(null);
+        authorizationService.checkAuthorization(shoppingCard == null ? null : shoppingCard.getUsername());
         var cardItemResponseDTOS = shoppingCardItems.stream()
                 .map(this::getItemResponseDTO)
                 .filter(i -> !Objects.isNull(i))
@@ -140,7 +139,6 @@ public class ShoppingCardItemService {
         ShoppingCard shoppingCard = shoppingCardItem.getShoppingCard();
         var bookInfo = getBookInfo(shoppingCardItem.getBookId());
 
-        authorizationService.checkAuthorization(shoppingCard.getUsername());
 
         if (bookInfo == null) {
             throw new BadRequestException(String.format("book with id=[%s] -> not found", shoppingCardItem.getBookId()));
@@ -149,10 +147,12 @@ public class ShoppingCardItemService {
         if (!available) {
             throw new BadRequestException(String.format("book with id=[%s] -> not available", shoppingCardItem.getBookId()));
         }
+        authorizationService.checkAuthorization(shoppingCard.getUsername());
+
         return bookInfo;
     }
 
-    private ShoppingCardItemResponseDTO getItemResponseDTO(ShoppingCardItem shoppingCardItem) throws BadRequestException {
+    private ShoppingCardItemResponseDTO getItemResponseDTO(ShoppingCardItem shoppingCardItem) {
         ShoppingCard shoppingCard = shoppingCardItem.getShoppingCard();
         authorizationService.checkAuthorization(shoppingCard.getUsername());
 

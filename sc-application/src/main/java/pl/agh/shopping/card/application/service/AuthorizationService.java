@@ -10,12 +10,11 @@ import java.util.Objects;
 
 @Service
 public class AuthorizationService {
-
     public void checkAuthorization(String cartOwner) throws AccessDeniedException {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         Object user = authentication.getPrincipal();
-        if (user != null) {
-            if (user.toString().equals("anonymousUser") || Objects.equals(user.toString(), cartOwner)) return;
+        if (cartOwner != null) {
+            if (Objects.equals(user.toString(), cartOwner)) return;
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
             for (GrantedAuthority authority : authorities) {

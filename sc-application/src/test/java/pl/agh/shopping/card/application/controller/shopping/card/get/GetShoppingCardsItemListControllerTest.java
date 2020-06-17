@@ -75,34 +75,7 @@ public class GetShoppingCardsItemListControllerTest {
     }
 
     @Test
-    @WithCustomUser(roles = "ADMIN")
-    public void adminNoOffsetTest() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1/items/")
-                .param("limit", "0"))
-                .andExpect(status().is(400))
-                .andExpect(status().reason("Required int parameter 'offset' is not present"));
-    }
-
-    @Test
-    @WithCustomUser("user1")
-    public void loggedInNoOffsetTest() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1/items/")
-                .param("limit", "0"))
-                .andExpect(status().is(400))
-                .andExpect(status().reason("Required int parameter 'offset' is not present"));
-    }
-
-    @Test
-    @WithCustomUser("anotherUser")
-    public void otherNoOffsetTest() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1/items/")
-                .param("limit", "0"))
-                .andExpect(status().is(403));
-    }
-
-    @Test
     public void onlyLimitAndOffsetTest() throws Exception {
-
 
         Map<String, Object> book = ImmutableMap.<String, Object>builder()
                 .put("id", 1)
@@ -122,16 +95,7 @@ public class GetShoppingCardsItemListControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1/items/")
                 .param("offset", "0")
                 .param("limit", "10"))
-                .andExpect(status().is(200))
-                .andExpect(jsonPath("list[0].id").value("1"))
-                .andExpect(jsonPath("list[0].book.id").value("1"))
-                .andExpect(jsonPath("list[0].quantity").value("3"))
-                .andExpect(jsonPath("list[0].createDate").value("2020-05-04"))
-                .andExpect(jsonPath("list[1].id").value("2"))
-                .andExpect(jsonPath("list[1].book.id").value("2"))
-                .andExpect(jsonPath("list[1].quantity").value("1"))
-                .andExpect(jsonPath("list[1].createDate").value("2020-05-04"))
-                .andExpect(jsonPath("count").value("4"));
+                .andExpect(status().is(401));
     }
 
     @Test
@@ -163,7 +127,6 @@ public class GetShoppingCardsItemListControllerTest {
     @Test
     public void offset1Test() throws Exception {
 
-
         Map<String, Object> book = ImmutableMap.<String, Object>builder()
                 .put("id", 1)
                 .put("title", "Lalka")
@@ -181,17 +144,11 @@ public class GetShoppingCardsItemListControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1/items/")
                 .param("offset", "1")
                 .param("limit", "10"))
-                .andExpect(status().is(200))
-                .andExpect(jsonPath("list[0].id").value("2"))
-                .andExpect(jsonPath("list[0].book.id").value("2"))
-                .andExpect(jsonPath("list[0].quantity").value("1"))
-                .andExpect(jsonPath("list[0].createDate").value("2020-05-04"))
-                .andExpect(jsonPath("count").value("4"));
+                .andExpect(status().is(401));
     }
 
     @Test
     public void limit0Test() throws Exception {
-
 
         Map<String, Object> book = ImmutableMap.<String, Object>builder()
                 .put("id", 1)
@@ -210,8 +167,6 @@ public class GetShoppingCardsItemListControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1/items/")
                 .param("offset", "0")
                 .param("limit", "0"))
-                .andExpect(status().is(200))
-                .andExpect(jsonPath("list").isEmpty())
-                .andExpect(jsonPath("count").value("4"));
+                .andExpect(status().is(401));
     }
 }

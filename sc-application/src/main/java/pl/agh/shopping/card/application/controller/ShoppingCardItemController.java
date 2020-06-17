@@ -49,7 +49,7 @@ public class ShoppingCardItemController {
             @PathVariable("shoppingCardId") Long shoppingCardId,
             @PathVariable("id") Long id,
             @RequestBody @Valid ShoppingCardItemRequestDTO shoppingCardItemRequestDTO
-    ) throws CustomException {
+    ) throws Exception {
 
         var updatedShoppingCardItem = shoppingCardItemService.update(shoppingCardId, id, shoppingCardItemRequestDTO);
         if (updatedShoppingCardItem == null) {
@@ -83,7 +83,7 @@ public class ShoppingCardItemController {
     }
 
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<?> deleteShoppingCardItem(@PathVariable Long id) {
+    public ResponseEntity<?> deleteShoppingCardItem(@PathVariable Long id) throws Exception {
         var deletedShoppingCardItem = shoppingCardItemService.delete(id);
         if (deletedShoppingCardItem == null) {
             return ResponseEntity.notFound().build();

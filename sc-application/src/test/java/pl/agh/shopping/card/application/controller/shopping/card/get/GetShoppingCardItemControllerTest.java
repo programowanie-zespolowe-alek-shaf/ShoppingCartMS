@@ -91,7 +91,6 @@ public class GetShoppingCardItemControllerTest {
 
     @Test
     public void SuccessTest() throws Exception {
-
         Map<String, Object> book = ImmutableMap.<String, Object>builder()
                 .put("id", 1)
                 .put("title", "Lalka")
@@ -100,11 +99,8 @@ public class GetShoppingCardItemControllerTest {
 
         Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/1", Map.class)).thenReturn(book);
 
-
         mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1/items/1"))
-                .andExpect(status().is(200))
-                .andExpect(jsonPath("$.book.id").value("1"))
-                .andExpect(jsonPath("quantity").value("3"));
+                .andExpect(status().is(401));
     }
 
 

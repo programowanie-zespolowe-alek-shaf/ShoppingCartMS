@@ -43,7 +43,6 @@ public class ShoppingCardController {
     public ResponseEntity<?> updateShoppingCard(@PathVariable("id") Long id, @RequestBody ShoppingCardRequestDTO shoppingCardRequestDTO) throws Exception {
 
         ShoppingCardResponseDTO updatedShoppingCard = shoppingCardService.update(id, shoppingCardRequestDTO);
-        authorizationService.checkAuthorization(shoppingCardRequestDTO.getUsername());
 
         if (updatedShoppingCard == null) {
             return ResponseEntity.notFound().build();
@@ -70,7 +69,6 @@ public class ShoppingCardController {
     public ResponseEntity<?> findShoppingCards(@RequestParam int limit,
                                                @RequestParam int offset,
                                                @RequestParam(required = false) String username) throws Exception {
-        authorizationService.checkAuthorization(username);
         ListResponse shoppingCards = shoppingCardService.findAll(limit, offset, username);
         return ResponseEntity.ok(shoppingCards);
     }
