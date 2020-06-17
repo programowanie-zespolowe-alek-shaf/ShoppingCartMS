@@ -17,6 +17,7 @@ import pl.agh.shopping.card.mysql.repository.ShoppingCardRepository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -97,12 +98,15 @@ public class ShoppingCardItemService {
     public ListResponse findAll(Long shoppingCardId, int limit, int offset) {
         List<ShoppingCardItem> shoppingCardItems = shoppingCardItemRepository.findAllByShoppingCard_Id(shoppingCardId);
 
-        int count = shoppingCardItems.stream().mapToInt(ShoppingCardItem::getQuantity).sum();
-        shoppingCardItems = ListUtil.clampedSublist(shoppingCardItems, limit, offset);
+        var cardItemResponseDTOS = shoppingCardItems.stream()
+                .map(this::getItemResponseDTO)
+                .filter(i -> !Objects.isNull(i))
+                .collect(Collectors.toList());
 
-        var cardItemResponseDTOS = shoppingCardItems.stream().map(this::getItemResponseDTO).collect(Collectors.toList());
+        int count = cardItemResponseDTOS.stream().mapToInt(ShoppingCardItemResponseDTO::getQuantity).sum();
+        cardItemResponseDTOS = ListUtil.clampedSublist(cardItemResponseDTOS, limit, offset);
 
-        Double totalValue = shoppingCardItems.stream()
+        Double totalValue = cardItemResponseDTOS.stream()
                 .mapToDouble(obj -> obj.getActualPrice() * obj.getQuantity())
                 .sum();
         return new ListResponse(cardItemResponseDTOS, count, totalValue);
@@ -125,6 +129,9 @@ public class ShoppingCardItemService {
     }
 
     private ShoppingCardItemResponseDTO getItemResponseDTO(ShoppingCardItem shoppingCardItem, Map<String, Object> bookInfo) {
+        if (bookInfo == null) {
+            return null;
+        }
         return new ShoppingCardItemResponseDTO(shoppingCardItem, bookInfo);
     }
 

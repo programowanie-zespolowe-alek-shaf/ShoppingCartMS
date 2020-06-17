@@ -68,6 +68,29 @@ public class GetShoppingCardControllerTest {
     }
 
     @Test
+    public void successTestWithOneBookNull() throws Exception {
+        Map<String, Object> book2 = ImmutableMap.<String, Object>builder()
+                .put("id", 2)
+                .put("title", "Dziady")
+                .put("available", true)
+                .build();
+
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/1", Map.class)).thenReturn(null);
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/2", Map.class)).thenReturn(book2);
+
+        mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("id").value("1"))
+                .andExpect(jsonPath("username").value("user1"))
+                .andExpect(jsonPath("createDate").value("2020-05-04"))
+                .andExpect(jsonPath("items.list[0].id").value("2"))
+                .andExpect(jsonPath("items.list[0].book.id").value("2"))
+                .andExpect(jsonPath("items.list[0].book.title").value("Dziady"))
+                .andExpect(jsonPath("items.list[0].book.available").value("true"))
+                .andExpect(jsonPath("items.count").value("1"));
+    }
+
+    @Test
     public void notFoundTest() throws Exception {
         mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/10"))
                 .andExpect(status().is(404));
