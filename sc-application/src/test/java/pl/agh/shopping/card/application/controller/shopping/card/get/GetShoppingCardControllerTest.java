@@ -68,7 +68,7 @@ public class GetShoppingCardControllerTest {
     }
 
     @Test
-    @WithCustomUser()
+    @WithCustomUser("user1")
     public void loggedInSuccessTest() throws Exception {
         Map<String, Object> book = ImmutableMap.<String, Object>builder()
                 .put("id", 1)
@@ -151,28 +151,6 @@ public class GetShoppingCardControllerTest {
                 .andExpect(jsonPath("items.list[1].book.title").value("Dziady"))
                 .andExpect(jsonPath("items.list[1].book.available").value("true"))
                 .andExpect(jsonPath("items.count").value("2"));
-    }
-
-
-    @Test
-    @WithCustomUser(roles = "ADMIN")
-    public void adminNotFoundTest() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/10"))
-                .andExpect(status().is(404));
-    }
-
-    @Test
-    @WithCustomUser("user123")
-    public void loggedInNotFoundTest() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/10"))
-                .andExpect(status().is(404));
-    }
-
-    @Test
-    @WithCustomUser("anotherUser")
-    public void otherNotFoundTest() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/10"))
-                .andExpect(status().is(403));
     }
 
     @Test

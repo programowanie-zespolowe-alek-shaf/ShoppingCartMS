@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pl.agh.shopping.card.application.dto.ShoppingCardItemRequestDTO;
 import pl.agh.shopping.card.application.dto.ShoppingCardItemResponseDTO;
+import pl.agh.shopping.card.application.service.AuthorizationService;
 import pl.agh.shopping.card.application.service.ShoppingCardItemService;
 import pl.agh.shopping.card.common.exception.BadRequestException;
 import pl.agh.shopping.card.common.exception.CustomException;
@@ -23,6 +24,7 @@ import static pl.agh.shopping.card.common.util.ResponseFormat.APPLICATION_JSON;
 public class ShoppingCardItemController {
 
     private final ShoppingCardItemService shoppingCardItemService;
+    private final AuthorizationService authorizationService;
 
 
     @PostMapping(consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
@@ -59,7 +61,9 @@ public class ShoppingCardItemController {
 
     @GetMapping(value = "{id}", produces = APPLICATION_JSON)
     public ResponseEntity<ShoppingCardItemResponseDTO> getShoppingCardItem(@PathVariable("id") Long id) throws BadRequestException {
+
         ShoppingCardItemResponseDTO shoppingCardItem = shoppingCardItemService.find(id);
+
         if (shoppingCardItem == null) {
             return ResponseEntity.notFound().build();
         } else {

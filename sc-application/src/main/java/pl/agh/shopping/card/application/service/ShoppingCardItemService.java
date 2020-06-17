@@ -37,6 +37,7 @@ public class ShoppingCardItemService {
         }
         var shoppingCardItem = shoppingCardItemRequestDTO.toEntity();
         ShoppingCard shoppingCard = shoppingCart.get();
+
         authorizationService.checkAuthorization(shoppingCard.getUsername());
         shoppingCardItem.setShoppingCard(shoppingCard);
 
@@ -44,16 +45,19 @@ public class ShoppingCardItemService {
         return getItemResponseDTO(shoppingCardItemRepository.save(shoppingCardItem), bookInfo);
     }
 
-    //nope
     public ShoppingCardItemResponseDTO find(Long id) throws BadRequestException {
 
         Optional<ShoppingCardItem> shoppingCardItem = shoppingCardItemRepository.findById(id);
+
         if (shoppingCardItem.isEmpty()) {
             return null;
         }
 
+        ShoppingCardItem cardItem = shoppingCardItem.get();
+        var username = cardItem.getShoppingCard().getUsername();
+        authorizationService.checkAuthorization(username);
 
-        return getItemResponseDTO(shoppingCardItem.get());
+        return getItemResponseDTO(cardItem);
     }
 
     public ShoppingCardItemResponseDTO update(Long shoppingCardId, Long id, ShoppingCardItemRequestDTO shoppingCardItemRequestDTO) throws BadRequestException {
@@ -84,6 +88,12 @@ public class ShoppingCardItemService {
         if (shoppingCardItem.isEmpty()) {
             return null;
         }
+
+        ShoppingCardItem cardItem = shoppingCardItem.get();
+        var username = cardItem.getShoppingCard().getUsername();
+        authorizationService.checkAuthorization(username);
+
+
         shoppingCardItemRepository.delete(shoppingCardItem.get());
         return shoppingCardItem.get();
     }

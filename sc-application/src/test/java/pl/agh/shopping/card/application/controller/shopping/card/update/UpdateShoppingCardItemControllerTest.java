@@ -9,13 +9,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.agh.shopping.card.application.config.TestUtils;
+import pl.agh.shopping.card.application.config.WithCustomUser;
 import pl.agh.shopping.card.application.dto.ShoppingCardItemRequestDTO;
 import pl.agh.shopping.card.application.rest.MicroService;
 import pl.agh.shopping.card.application.rest.RestClient;
@@ -36,7 +36,6 @@ import static pl.agh.shopping.card.application.config.TestUtils.mapObjectToStrin
 @SpringBootTest()
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@WithMockUser
 @Sql({"classpath:schema-shopping.sql", "classpath:data-shopping.sql"})
 public class UpdateShoppingCardItemControllerTest {
 
@@ -80,9 +79,133 @@ public class UpdateShoppingCardItemControllerTest {
         shoppingCardItemRepository.save(shoppingCardItemBefore);
     }
 
+    @Test
+    @WithCustomUser(roles = "ADMIN")
+    public void adminSuccessUpdateTest() throws Exception {
+
+        Map<String, Object> book = ImmutableMap.<String, Object>builder()
+                .put("id", 1)
+                .put("title", "Lalka")
+                .put("available", true)
+                .build();
+
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/1", Map.class)).thenReturn(book);
+
+        ShoppingCardItem shoppingCardItemBefore = shoppingCardItemRepository.findById(1L).orElseThrow(null);
+
+        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = new ShoppingCardItemRequestDTO(1L, 11);
+
+        String requestJson = mapObjectToStringJson(shoppingCardItemRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.put("/shoppingCards/1/items/1").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("quantity").value("11"));
+
+        ShoppingCardItem shoppingCardItemAfter = shoppingCardItemRepository.findById(1L).orElse(null);
+        assertNotNull(shoppingCardItemAfter);
+        assertEquals(1L, shoppingCardItemAfter.getId(), 0.01);
+        assertEquals(shoppingCardItemAfter.getQuantity(), Integer.valueOf(11));
+
+        shoppingCardItemRepository.save(shoppingCardItemBefore);
+    }
+
+    @Test
+    @WithCustomUser("user1")
+    public void loggedInSuccessUpdateTest() throws Exception {
+
+        Map<String, Object> book = ImmutableMap.<String, Object>builder()
+                .put("id", 1)
+                .put("title", "Lalka")
+                .put("available", true)
+                .build();
+
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/1", Map.class)).thenReturn(book);
+
+        ShoppingCardItem shoppingCardItemBefore = shoppingCardItemRepository.findById(1L).orElseThrow(null);
+
+        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = new ShoppingCardItemRequestDTO(1L, 11);
+
+        String requestJson = mapObjectToStringJson(shoppingCardItemRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.put("/shoppingCards/1/items/1").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("quantity").value("11"));
+
+        ShoppingCardItem shoppingCardItemAfter = shoppingCardItemRepository.findById(1L).orElse(null);
+        assertNotNull(shoppingCardItemAfter);
+        assertEquals(1L, shoppingCardItemAfter.getId(), 0.01);
+        assertEquals(shoppingCardItemAfter.getQuantity(), Integer.valueOf(11));
+
+        shoppingCardItemRepository.save(shoppingCardItemBefore);
+    }
+
+    @Test
+    @WithCustomUser("anotherUser")
+    public void otherSuccessUpdateTest() throws Exception {
+
+        Map<String, Object> book = ImmutableMap.<String, Object>builder()
+                .put("id", 1)
+                .put("title", "Lalka")
+                .put("available", true)
+                .build();
+
+        Mockito.when(restClient.get(MicroService.PRODUCT_MS, "/books/1", Map.class)).thenReturn(book);
+
+        ShoppingCardItem shoppingCardItemBefore = shoppingCardItemRepository.findById(1L).orElseThrow(null);
+
+        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = new ShoppingCardItemRequestDTO(1L, 11);
+
+        String requestJson = mapObjectToStringJson(shoppingCardItemRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.put("/shoppingCards/1/items/1").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(403));
+    }
+
 
     @Test
     public void noQuantityFailedTest() throws Exception {
+        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = ShoppingCardItemRequestDTO.builder().bookId(1L).build();
+
+        String requestJson = TestUtils.mapObjectToStringJson(shoppingCardItemRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.put("/shoppingCards/1/items/1").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(400))
+                .andExpect(jsonPath("error").value("quantity=[null] -> must not be null"));
+    }
+
+    @Test
+    @WithCustomUser(roles = "ADMIN")
+    public void adminNoQuantityFailedTest() throws Exception {
+        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = ShoppingCardItemRequestDTO.builder().bookId(1L).build();
+
+        String requestJson = TestUtils.mapObjectToStringJson(shoppingCardItemRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.put("/shoppingCards/1/items/1").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(400))
+                .andExpect(jsonPath("error").value("quantity=[null] -> must not be null"));
+    }
+
+    @Test
+    @WithCustomUser("user")
+    public void loggedInNoQuantityFailedTest() throws Exception {
+        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = ShoppingCardItemRequestDTO.builder().bookId(1L).build();
+
+        String requestJson = TestUtils.mapObjectToStringJson(shoppingCardItemRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.put("/shoppingCards/1/items/1").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(400))
+                .andExpect(jsonPath("error").value("quantity=[null] -> must not be null"));
+    }
+
+    @Test
+    @WithCustomUser("anotherUser")
+    public void otherNoQuantityFailedTest() throws Exception {
         ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = ShoppingCardItemRequestDTO.builder().bookId(1L).build();
 
         String requestJson = TestUtils.mapObjectToStringJson(shoppingCardItemRequestDTO);
@@ -104,6 +227,44 @@ public class UpdateShoppingCardItemControllerTest {
                 .content(requestJson))
                 .andExpect(status().is(400))
                 .andExpect(jsonPath("error").value("bookId=[null] -> must not be null"));
+    }
+
+    @Test
+    @WithCustomUser(roles = "ADMIN")
+    public void adminNoBookIdFailedTest() throws Exception {
+        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = ShoppingCardItemRequestDTO.builder().quantity(1).build();
+
+        String requestJson = TestUtils.mapObjectToStringJson(shoppingCardItemRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.put("/shoppingCards/1/items/1").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(400))
+                .andExpect(jsonPath("error").value("bookId=[null] -> must not be null"));
+    }
+
+    @Test
+    @WithCustomUser("user")
+    public void loggedInNoBookIdFailedTest() throws Exception {
+        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = ShoppingCardItemRequestDTO.builder().quantity(1).build();
+
+        String requestJson = TestUtils.mapObjectToStringJson(shoppingCardItemRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.put("/shoppingCards/1/items/1").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(400))
+                .andExpect(jsonPath("error").value("bookId=[null] -> must not be null"));
+    }
+
+    @Test
+    @WithCustomUser("anotherUser")
+    public void otherNoBookIdFailedTest() throws Exception {
+        ShoppingCardItemRequestDTO shoppingCardItemRequestDTO = ShoppingCardItemRequestDTO.builder().quantity(1).build();
+
+        String requestJson = TestUtils.mapObjectToStringJson(shoppingCardItemRequestDTO);
+
+        mvc.perform(MockMvcRequestBuilders.put("/shoppingCards/1/items/1").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().is(403));
     }
 
 
