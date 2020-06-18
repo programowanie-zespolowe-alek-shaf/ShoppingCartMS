@@ -55,7 +55,7 @@ public class CreateShoppingCardItemControllerTest {
     private RestClient restClient;
 
     @Test
-    public void successTest() throws Exception {
+    public void notLoggedUserCanAddItemToCardWithoutOwner() throws Exception {
 
         Map<String, Object> book = ImmutableMap.<String, Object>builder()
                 .put("id", 1)

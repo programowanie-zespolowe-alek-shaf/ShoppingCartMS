@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pl.agh.shopping.card.application.dto.ShoppingCardRequestDTO;
 import pl.agh.shopping.card.application.dto.ShoppingCardResponseDTO;
-import pl.agh.shopping.card.application.service.AuthorizationService;
 import pl.agh.shopping.card.application.service.ShoppingCardService;
 import pl.agh.shopping.card.common.response.ListResponse;
 
@@ -22,13 +21,11 @@ import static pl.agh.shopping.card.common.util.ResponseFormat.APPLICATION_JSON;
 public class ShoppingCardController {
 
     private final ShoppingCardService shoppingCardService;
-    private final AuthorizationService authorizationService;
 
     @PostMapping(consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
-    public ResponseEntity<?> addShoppingCard(@RequestBody ShoppingCardRequestDTO shoppingCardRequestDTO) throws Exception {
+    public ResponseEntity<?> addShoppingCard(@RequestBody ShoppingCardRequestDTO shoppingCardRequestDTO) {
 
         ShoppingCardResponseDTO createdShoppingCard = shoppingCardService.add(shoppingCardRequestDTO);
-        authorizationService.checkAuthorization(shoppingCardRequestDTO.getUsername());
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -40,7 +37,7 @@ public class ShoppingCardController {
     }
 
     @PutMapping(path = "{id}", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
-    public ResponseEntity<?> updateShoppingCard(@PathVariable("id") Long id, @RequestBody ShoppingCardRequestDTO shoppingCardRequestDTO) throws Exception {
+    public ResponseEntity<?> updateShoppingCard(@PathVariable("id") Long id, @RequestBody ShoppingCardRequestDTO shoppingCardRequestDTO) {
 
         ShoppingCardResponseDTO updatedShoppingCard = shoppingCardService.update(id, shoppingCardRequestDTO);
 
@@ -52,30 +49,27 @@ public class ShoppingCardController {
     }
 
     @GetMapping(value = "{id}", produces = APPLICATION_JSON)
-    public ResponseEntity<ShoppingCardResponseDTO> getShoppingCard(@PathVariable("id") Long id) throws Exception {
+    public ResponseEntity<ShoppingCardResponseDTO> getShoppingCard(@PathVariable("id") Long id) {
         ShoppingCardResponseDTO shoppingCard = shoppingCardService.find(id);
 
         if (shoppingCard == null) {
             return ResponseEntity.notFound().build();
         } else {
-            authorizationService.checkAuthorization(shoppingCard.getUsername());
             return ResponseEntity.ok(shoppingCard);
         }
     }
-
 
     @GetMapping(produces = APPLICATION_JSON)
     @Secured("ROLE_ADMIN")
     public ResponseEntity<?> findShoppingCards(@RequestParam int limit,
                                                @RequestParam int offset,
-                                               @RequestParam(required = false) String username) throws Exception {
+                                               @RequestParam(required = false) String username) {
         ListResponse shoppingCards = shoppingCardService.findAll(limit, offset, username);
         return ResponseEntity.ok(shoppingCards);
     }
 
-
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<?> deleteShoppingCard(@PathVariable Long id) throws Exception {
+    public ResponseEntity<?> deleteShoppingCard(@PathVariable Long id) {
 
         var deletedShoppingCard = shoppingCardService.delete(id);
         if (deletedShoppingCard == null) {

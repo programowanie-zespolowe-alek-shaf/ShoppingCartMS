@@ -95,7 +95,16 @@ public class GetShoppingCardsItemListControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1/items/")
                 .param("offset", "0")
                 .param("limit", "10"))
-                .andExpect(status().is(401));
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("list[0].id").value("1"))
+                .andExpect(jsonPath("list[0].book.id").value("1"))
+                .andExpect(jsonPath("list[0].quantity").value("3"))
+                .andExpect(jsonPath("list[0].createDate").value("2020-05-04"))
+                .andExpect(jsonPath("list[1].id").value("2"))
+                .andExpect(jsonPath("list[1].book.id").value("2"))
+                .andExpect(jsonPath("list[1].quantity").value("1"))
+                .andExpect(jsonPath("list[1].createDate").value("2020-05-04"))
+                .andExpect(jsonPath("count").value("4"));
     }
 
     @Test
@@ -144,7 +153,12 @@ public class GetShoppingCardsItemListControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1/items/")
                 .param("offset", "1")
                 .param("limit", "10"))
-                .andExpect(status().is(401));
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("list[0].id").value("2"))
+                .andExpect(jsonPath("list[0].book.id").value("2"))
+                .andExpect(jsonPath("list[0].quantity").value("1"))
+                .andExpect(jsonPath("list[0].createDate").value("2020-05-04"))
+                .andExpect(jsonPath("count").value("4"));
     }
 
     @Test
@@ -167,6 +181,8 @@ public class GetShoppingCardsItemListControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/shoppingCards/1/items/")
                 .param("offset", "0")
                 .param("limit", "0"))
-                .andExpect(status().is(401));
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("list").isEmpty())
+                .andExpect(jsonPath("count").value("4"));
     }
 }

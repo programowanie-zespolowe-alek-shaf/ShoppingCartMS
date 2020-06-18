@@ -10,7 +10,8 @@ import java.util.Objects;
 
 @Service
 public class AuthorizationService {
-    public void checkAuthorization(String cartOwner) throws AccessDeniedException {
+
+    public void checkAuthorization(String cartOwner) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         Object user = authentication.getPrincipal();
         if (cartOwner != null) {
@@ -24,8 +25,5 @@ public class AuthorizationService {
             }
             throw new AccessDeniedException("user not authorised");
         }
-
     }
-
-
 }
